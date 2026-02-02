@@ -1,4 +1,5 @@
-from fastapi import FastAPI, HTTPException, HTMLResponse
+from fastapi import FastAPI, HTTPException
+from fastapi.responses import HTMLResponse 
 from pydantic import BaseModel
 from typing import Optional
 import logica_envios_postgres as logic
