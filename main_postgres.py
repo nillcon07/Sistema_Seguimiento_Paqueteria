@@ -111,26 +111,14 @@ class Devolucion(BaseModel):
 # ENDPOINTS
 # =====================================================
 
-@app.get("/")
+@app.get("/", response_class=HTMLResponse)
 def root():
-    """Endpoint raíz - información de la API"""
-    return {
-        "mensaje": "Sistema de Envíos API con PostgreSQL",
-        "version": "2.0.0",
-        "database": "PostgreSQL (Neon)",
-        "endpoints_disponibles": {
-            "GET /": "Información de la API",
-            "GET /pedidos": "Listar todos los pedidos",
-            "POST /pedidos": "Crear un nuevo pedido",
-            "POST /pedidos/consultar/codigo": "Consultar pedido por código",
-            "POST /pedidos/consultar/cliente": "Consultar pedidos por cliente",
-            "POST /pedidos/consultar/fecha": "Consultar pedidos por rango de fechas",
-            "PUT /pedidos/estado": "Cambiar estado de un pedido",
-            "POST /pedidos/devolucion": "Procesar devolución de un pedido",
-            "GET /contador": "Obtener el contador actual de pedidos",
-            "GET /health": "Health check de la API y base de datos"
-        }
-    }
+    """Endpoint raíz - Carga la interfaz visual"""
+    try:
+        with open("index.html", "r", encoding="utf-8") as f:
+            return f.read()
+    except FileNotFoundError:
+        return "<h1>Error: No se encontró el archivo index.html</h1>"
 
 
 @app.get("/contador")
