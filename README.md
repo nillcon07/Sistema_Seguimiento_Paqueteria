@@ -1,211 +1,133 @@
-# 📦 Sistema de Envíos - API REST
 
-API profesional para gestión de envíos de paquetería con **FastAPI** y **PostgreSQL**.
+# 📦 Sistema de Envíos UADE - Fullstack
 
-[![Deploy to Render](https://render.com/images/deploy-to-render-button.svg)](https://render.com/deploy)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.109-009688?style=for-the-badge&logo=fastapi&logoColor=white)
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791?style=for-the-badge&logo=postgresql&logoColor=white)
+![Render](https://img.shields.io/badge/Deploy-Render-46E3B7?style=for-the-badge&logo=render&logoColor=white)
+
+Una solución completa para la gestión de paquetería que incluye una **API REST robusta** y un **Frontend moderno** con diseño *Glassmorphism*.
 
 ---
 
 ## 🚀 Demo en Vivo
 
-**API:** [https://tu-url.onrender.com](https://tu-url.onrender.com)  
-**Documentación:** [https://tu-url.onrender.com/docs](https://tu-url.onrender.com/docs)
+👉 **[Ver Aplicación Desplegada](https://tu-url-de-render.onrender.com)** 📄 **[Documentación API (Swagger)](https://tu-url-de-render.onrender.com/docs)**
+
+> *⚠️ Nota: Al estar alojado en el plan gratuito de Render, la primera carga puede demorar unos segundos en "despertar" el servidor.*
 
 ---
 
-## ✨ Características
+## ✨ Características Principales
 
-- ✅ **CRUD completo** de pedidos de envío
-- ✅ **PostgreSQL** en la nube (Neon)
-- ✅ **API REST** con FastAPI
-- ✅ **Documentación automática** (Swagger UI)
-- ✅ **Sin POO** - Solo funciones procedurales
-- ✅ **Connection Pooling** para mejor rendimiento
-- ✅ **Validaciones robustas** de datos
-- ✅ **Deploy fácil** en Render
+### 🎨 Frontend (Nuevo)
+* **Interfaz Visual:** Panel de control web para crear y rastrear pedidos sin código.
+* **Diseño Moderno:** Estilo "Glassmorphism" con animaciones y feedback visual.
+* **Single Page Application:** Interactúa con la API en tiempo real usando JavaScript vainilla (sin frameworks pesados).
 
----
-
-## 📖 Documentación
-
-- [Guía de Deploy en Render](GUIA_DEPLOY_RENDER.md)
-- [Documentación Completa](README_POSTGRES.md)
-- [Migración de datos](migrar_a_postgres.py)
+### ⚙️ Backend (API)
+* **FastAPI:** Alto rendimiento y documentación automática.
+* **PostgreSQL:** Persistencia de datos en la nube (Neon Tech).
+* **Arquitectura Procedural:** Lógica de negocio limpia y directa.
+* **Validaciones:** Control estricto de datos con Pydantic.
 
 ---
 
-## 🎯 Endpoints Principales
+## 🛠️ Estructura del Proyecto
 
-| Método | Endpoint | Descripción |
-|--------|----------|-------------|
-| `GET` | `/` | Información de la API |
-| `GET` | `/health` | Health check |
-| `POST` | `/pedidos` | Crear pedido |
-| `GET` | `/pedidos` | Listar todos los pedidos |
-| `POST` | `/pedidos/consultar/codigo` | Buscar por código |
-| `PUT` | `/pedidos/estado` | Actualizar estado |
-| `POST` | `/pedidos/devolucion` | Registrar devolución |
+El proyecto ha sido reorganizado para mayor limpieza:
+
+```text
+sistema-envios-api/
+├── src/                        # 📂 CÓDIGO FUENTE
+│   ├── main_postgres.py        # Punto de entrada (API + Servidor de estáticos)
+│   ├── logica_envios_postgres.py # Reglas de negocio y conexión DB
+│   ├── index.html              # Interfaz Gráfica (Frontend)
+│   ├── requirements_postgres.txt # Dependencias
+│   └── runtime.txt             # Versión de Python
+├── render.yaml                 # Configuración de Deploy
+├── .gitignore                  # Archivos ignorados
+└── README.md                   # Documentación
+
+```
 
 ---
 
-## 🚀 Inicio Rápido
+## 🚀 Instalación y Ejecución Local
 
-### Instalación Local
+Sigue estos pasos para probar el proyecto en tu máquina:
 
+1. **Clonar el repositorio:**
 ```bash
-# Clonar el repositorio
-git clone https://github.com/TU-USUARIO/sistema-envios-api.git
+git clone [https://github.com/TU-USUARIO/sistema-envios-api.git](https://github.com/TU-USUARIO/sistema-envios-api.git)
 cd sistema-envios-api
 
-# Instalar dependencias
+```
+
+
+2. **Configurar entorno virtual (Opcional pero recomendado):**
+```bash
+python -m venv venv
+source venv/bin/activate  # En Windows: venv\Scripts\activate
+
+```
+
+
+3. **Instalar dependencias:**
+⚠️ **Importante:** Las dependencias están dentro de `src`.
+```bash
+cd src
 pip install -r requirements_postgres.txt
 
-# Ejecutar el servidor
-python main_postgres.py
 ```
 
-La API estará disponible en: `http://localhost:8000`
 
-Documentación interactiva: `http://localhost:8000/docs`
+4. **Variables de Entorno:**
+Crea un archivo `.env` o configura tus variables de sistema con las credenciales de tu base de datos (Neon/PostgreSQL):
+* `DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USER`, `DB_PASSWORD`
 
----
 
-## 🌐 Deploy en Render
-
-Sigue la [Guía de Deploy en Render](GUIA_DEPLOY_RENDER.md) para subir tu API a la nube en minutos.
-
----
-
-## 📊 Estructura de la Base de Datos
-
-```sql
-CREATE TABLE pedidos (
-    id SERIAL PRIMARY KEY,
-    codigo_tracking VARCHAR(50) UNIQUE NOT NULL,
-    nombre_cliente VARCHAR(200) NOT NULL,
-    direccion VARCHAR(300) NOT NULL,
-    provincia VARCHAR(100) NOT NULL,
-    estado VARCHAR(100) NOT NULL DEFAULT 'Pendiente',
-    fecha_creacion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
-```
-
----
-
-## 🔧 Configuración
-
-### Variables de Entorno
-
-Crea un archivo `.env` (usa `.env.example` como plantilla):
-
-```env
-DB_HOST=tu-host-postgresql
-DB_PORT=5432
-DB_NAME=tu-database
-DB_USER=tu-usuario
-DB_PASSWORD=tu-password
-DB_SSLMODE=require
-```
-
----
-
-## 📝 Ejemplo de Uso
-
-### Crear un pedido
-
+5. **Ejecutar el servidor:**
+Asegúrate de estar dentro de la carpeta `src`:
 ```bash
-curl -X POST "https://tu-api.onrender.com/pedidos" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "nombre_cliente": "Juan Perez",
-    "direccion": "Av Libertador 1234",
-    "provincia": "Buenos Aires"
-  }'
+python main_postgres.py
+
 ```
 
-### Respuesta
 
-```json
-{
-  "exito": true,
-  "mensaje": "Envío creado exitosamente",
-  "pedido": {
-    "contador": 1,
-    "codigo": "ENV001",
-    "cliente": "Juan Perez",
-    "direccion": "Av Libertador 1234",
-    "provincia": "Buenos Aires",
-    "estado": "Pendiente",
-    "fecha": "01/02/2026 14:30"
-  },
-  "nuevo_contador": 1
-}
-```
+6. **Abrir en el navegador:**
+Ve a `http://localhost:8000` para ver la interfaz gráfica.
 
 ---
 
-## 🛠️ Tecnologías
+## 🌐 Endpoints de la API
 
-- **[FastAPI](https://fastapi.tiangolo.com/)** - Framework web moderno
-- **[PostgreSQL](https://www.postgresql.org/)** - Base de datos relacional
-- **[Neon](https://neon.tech/)** - PostgreSQL serverless
-- **[Render](https://render.com/)** - Hosting en la nube
-- **[psycopg2](https://www.psycopg.org/)** - Driver PostgreSQL
-- **[Pydantic](https://docs.pydantic.dev/)** - Validación de datos
+Aunque tiene interfaz gráfica, la API sigue siendo 100% funcional para integraciones externas:
 
----
-
-## 📂 Estructura del Proyecto
-
-```
-sistema-envios-api/
-├── logica_envios_postgres.py    # Lógica de negocio
-├── main_postgres.py              # API FastAPI
-├── migrar_a_postgres.py          # Script de migración
-├── requirements_postgres.txt     # Dependencias
-├── runtime.txt                   # Versión de Python
-├── render.yaml                   # Configuración Render
-├── .gitignore                    # Archivos ignorados
-├── .env.example                  # Plantilla de variables
-├── README.md                     # Este archivo
-├── README_POSTGRES.md            # Documentación detallada
-└── GUIA_DEPLOY_RENDER.md         # Guía de deploy
-```
+| Método | Endpoint | Descripción |
+| --- | --- | --- |
+| `GET` | `/` | Carga la Interfaz Gráfica (HTML) |
+| `GET` | `/docs` | Documentación interactiva (Swagger) |
+| `POST` | `/pedidos` | Crear un nuevo envío |
+| `GET` | `/pedidos` | Listar todos los envíos |
+| `POST` | `/pedidos/consultar/codigo` | Rastrear un pedido específico |
 
 ---
 
-## 🤝 Contribuir
+## ☁️ Despliegue en Render
 
-Las contribuciones son bienvenidas. Por favor:
+Este repositorio está configurado para desplegarse automáticamente.
 
-1. Haz fork del proyecto
-2. Crea una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abre un Pull Request
+1. En Render, asegúrate de configurar el **Root Directory** como `src`.
+2. El **Build Command** se ejecutará dentro de esa carpeta: `pip install -r requirements_postgres.txt`.
+3. El **Start Command** buscará el archivo en la ruta correcta: `uvicorn main_postgres:app --host 0.0.0.0 --port $PORT`.
 
 ---
 
 ## 📄 Licencia
 
-Este proyecto está bajo la Licencia MIT.
+Proyecto desarrollado con fines educativos para la UADE.
 
----
+```
 
-## 👨‍💻 Autor
-
-Desarrollado con ❤️ manteniendo un estilo procedural (sin POO).
-
----
-
-## 📞 Soporte
-
-¿Problemas o preguntas?
-
-- 📖 Lee la [documentación completa](README_POSTGRES.md)
-- 🚀 Consulta la [guía de deploy](GUIA_DEPLOY_RENDER.md)
-- 🐛 Abre un [issue](https://github.com/TU-USUARIO/sistema-envios-api/issues)
-
----
-
-⭐ Si te gustó este proyecto, dale una estrella en GitHub!
+```
