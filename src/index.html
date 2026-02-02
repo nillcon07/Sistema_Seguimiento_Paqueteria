@@ -31,11 +31,6 @@
             font-weight: bold;
             color: var(--primary);
         }
-        .btn-primary {
-            background: var(--primary);
-            border: none;
-        }
-        .btn-primary:hover { background: #3a3f99; }
         .status-badge {
             padding: 5px 12px;
             border-radius: 20px;
@@ -50,46 +45,33 @@
 <body>
     <div class="container py-5">
         <div class="text-center text-white mb-5">
-            <h1><i class="fas fa-shipping-fast"></i> Sistema de Envíos</h1>
-            <p>Gestión de paquetería en tiempo real</p>
+            <h1><i class="fas fa-shipping-fast"></i> Panel de Envíos</h1>
         </div>
 
         <div class="row">
             <div class="col-md-4">
                 <div class="glass-card">
-                    <div class="card-header"><i class="fas fa-plus-circle"></i> Nuevo Envío</div>
+                    <div class="card-header"><i class="fas fa-plus-circle"></i> Nuevo Pedido</div>
                     <div class="card-body p-4">
-                        <form id="formEnvio" onsubmit="crearEnvio(event)">
+                        <form onsubmit="crearEnvio(event)">
                             <div class="mb-3">
-                                <label class="form-label">Cliente</label>
+                                <label>Cliente</label>
                                 <input type="text" class="form-control" id="cliente" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Dirección</label>
+                                <label>Dirección</label>
                                 <input type="text" class="form-control" id="direccion" required>
                             </div>
                             <div class="mb-3">
-                                <label class="form-label">Provincia</label>
+                                <label>Provincia</label>
                                 <select class="form-select" id="provincia" required>
+                                    <option value="CABA">CABA</option>
                                     <option value="Buenos Aires">Buenos Aires</option>
                                     <option value="Cordoba">Córdoba</option>
-                                    <option value="Santa Fe">Santa Fe</option>
-                                    <option value="Mendoza">Mendoza</option>
                                 </select>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Crear Pedido</button>
+                            <button type="submit" class="btn btn-primary w-100">Crear</button>
                         </form>
-                    </div>
-                </div>
-
-                <div class="glass-card">
-                    <div class="card-header"><i class="fas fa-search"></i> Rastrear Pedido</div>
-                    <div class="card-body p-4">
-                        <div class="input-group">
-                            <input type="text" class="form-control" id="trackingInput" placeholder="ENV001">
-                            <button class="btn btn-outline-primary" onclick="buscarPedido()">Buscar</button>
-                        </div>
-                        <div id="resultadoBusqueda" class="mt-3"></div>
                     </div>
                 </div>
             </div>
@@ -97,24 +79,20 @@
             <div class="col-md-8">
                 <div class="glass-card">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <span><i class="fas fa-list"></i> Últimos Pedidos</span>
-                        <button class="btn btn-sm btn-light" onclick="cargarPedidos()"><i class="fas fa-sync"></i> Actualizar</button>
+                        <span><i class="fas fa-list"></i> Control de Envíos</span>
+                        <button class="btn btn-sm btn-outline-primary" onclick="cargarPedidos()">Actualizar</button>
                     </div>
                     <div class="card-body p-0">
                         <div class="table-responsive">
-                            <table class="table table-hover mb-0" style="background: transparent;">
+                            <table class="table table-hover mb-0 align-middle">
                                 <thead class="table-light">
                                     <tr>
                                         <th>Código</th>
-                                        <th>Cliente</th>
                                         <th>Destino</th>
                                         <th>Estado</th>
-                                        <th>Fecha</th>
-                                    </tr>
+                                        <th>Acción</th> </tr>
                                 </thead>
-                                <tbody id="tablaPedidos">
-                                    <tr><td colspan="5" class="text-center p-3">Cargando...</td></tr>
-                                </tbody>
+                                <tbody id="tablaPedidos"></tbody>
                             </table>
                         </div>
                     </div>
@@ -124,105 +102,77 @@
     </div>
 
     <script>
-        const API_URL = ""; // Usamos ruta relativa porque estamos en el mismo dominio
+        const API_URL = ""; 
 
-        // Cargar pedidos al iniciar
         document.addEventListener('DOMContentLoaded', cargarPedidos);
 
         async function cargarPedidos() {
+            const res = await fetch(`${API_URL}/pedidos`);
+            const data = await res.json();
+            const tbody = document.getElementById('tablaPedidos');
+            tbody.innerHTML = '';
+
+            data.pedidos.forEach(p => {
+                let badgeClass = 'status-pendiente';
+                let btnAction = '';
+
+                // Lógica de botones según estado
+                if(p.estado === 'Pendiente') {
+                    badgeClass = 'status-pendiente';
+                    btnAction = `<button class="btn btn-sm btn-outline-primary" onclick="avanzar('${p.codigo}')">
+                                    <i class="fas fa-truck"></i> Despachar
+                                 </button>`;
+                } else if (p.estado === 'En Camino') {
+                    badgeClass = 'status-camino';
+                    btnAction = `<button class="btn btn-sm btn-outline-success" onclick="avanzar('${p.codigo}')">
+                                    <i class="fas fa-check"></i> Entregar
+                                 </button>`;
+                } else {
+                    badgeClass = 'status-entregado';
+                    btnAction = `<span class="text-muted"><i class="fas fa-lock"></i> Finalizado</span>`;
+                }
+
+                tbody.innerHTML += `
+                    <tr>
+                        <td class="fw-bold">${p.codigo}</td>
+                        <td>${p.direccion}</td>
+                        <td><span class="status-badge ${badgeClass}">${p.estado}</span></td>
+                        <td>${btnAction}</td>
+                    </tr>
+                `;
+            });
+        }
+
+        async function avanzar(codigo) {
+            const btn = event.target.closest('button');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
+
             try {
-                const res = await fetch(`${API_URL}/pedidos`);
-                const data = await res.json();
-                const tbody = document.getElementById('tablaPedidos');
-                tbody.innerHTML = '';
-
-                data.pedidos.forEach(p => {
-                    let badgeClass = 'status-pendiente';
-                    if(p.estado.includes('camino')) badgeClass = 'status-camino';
-                    if(p.estado.includes('Entregado')) badgeClass = 'status-entregado';
-
-                    tbody.innerHTML += `
-                        <tr>
-                            <td class="fw-bold text-primary">${p.codigo}</td>
-                            <td>${p.cliente}</td>
-                            <td>${p.direccion}, ${p.provincia}</td>
-                            <td><span class="status-badge ${badgeClass}">${p.estado}</span></td>
-                            <td><small class="text-muted">${p.fecha}</small></td>
-                        </tr>
-                    `;
+                const res = await fetch(`${API_URL}/pedidos/avanzar`, {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ codigo: codigo })
                 });
-            } catch (error) {
-                console.error('Error:', error);
-            }
+                if(res.ok) cargarPedidos();
+                else alert("Error al avanzar estado");
+            } catch(e) { console.error(e); }
         }
 
         async function crearEnvio(e) {
             e.preventDefault();
-            const btn = e.target.querySelector('button');
-            const originalText = btn.innerHTML;
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Procesando...';
-            btn.disabled = true;
-
             const datos = {
                 nombre_cliente: document.getElementById('cliente').value,
                 direccion: document.getElementById('direccion').value,
                 provincia: document.getElementById('provincia').value
             };
-
-            try {
-                const res = await fetch(`${API_URL}/pedidos`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(datos)
-                });
-                const result = await res.json();
-                
-                if(result.exito) {
-                    cargarPedidos(); // Recargar tabla
-                    e.target.reset(); // Limpiar form
-                    alert('✅ ' + result.mensaje);
-                } else {
-                    alert('❌ ' + result.detail);
-                }
-            } catch (error) {
-                alert('Error al conectar con el servidor');
-            } finally {
-                btn.innerHTML = originalText;
-                btn.disabled = false;
-            }
-        }
-
-        async function buscarPedido() {
-            const codigo = document.getElementById('trackingInput').value;
-            const div = document.getElementById('resultadoBusqueda');
-            
-            if(!codigo) return;
-
-            div.innerHTML = '<div class="text-center"><i class="fas fa-spinner fa-spin"></i></div>';
-
-            try {
-                const res = await fetch(`${API_URL}/pedidos/consultar/codigo`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ codigo: codigo })
-                });
-                
-                if(res.ok) {
-                    const data = await res.json();
-                    const p = data.pedido;
-                    div.innerHTML = `
-                        <div class="alert alert-success mt-2">
-                            <strong>${p.codigo}</strong><br>
-                            Estado: <b>${p.estado}</b><br>
-                            <small>${p.direccion}</small>
-                        </div>
-                    `;
-                } else {
-                    div.innerHTML = '<div class="alert alert-danger mt-2">No encontrado</div>';
-                }
-            } catch (error) {
-                div.innerHTML = '<div class="alert alert-danger">Error de conexión</div>';
-            }
+            await fetch(`${API_URL}/pedidos`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(datos)
+            });
+            e.target.reset();
+            cargarPedidos();
         }
     </script>
 </body>
